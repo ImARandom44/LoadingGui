@@ -1,0 +1,1798 @@
+local game = game
+local Vector3 = Vector3
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Pizza Hub 2.0",
+   Icon = 126973663577666, 
+   LoadingTitle = "Pizza Hub",
+   LoadingSubtitle = "Made By AFP",
+   Theme = "Default", 
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, 
+      FileName = "Pizza Hub"
+   },
+   Discord = {
+      Enabled = false, 
+      Invite = "false", 
+      RememberJoins = true 
+   },
+   KeySystem = false, 
+   KeySettings = {
+      Title = "Key",
+      Subtitle = "Key System",
+      Note = "Paste Link In Browser." , 
+      FileName = "KeySystemPizzaHub456666666556555444333", 
+      SaveKey = false,
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"PizzaHub"} 
+   }
+})
+
+local H = Window:CreateTab("Home", nil) 
+local HomeSection = H:CreateSection("Normal Stuff:")
+local A = Window:CreateTab("Autofarm", nil)
+local AutofarmSection = A:CreateSection("Order Leaderboard Farm:")
+local T = Window:CreateTab("Teleports", nil) 
+local TeleportsSection = T:CreateSection("Teleports:")
+local P = Window:CreateTab("Player", nil) 
+local PlayerSection = P:CreateSection("Player Settings:")
+local G = Window:CreateTab("Target", nil) 
+local TargetSection = G:CreateSection("Choose Player:")
+local S = Window:CreateTab("More Fun", nil) 
+local MoreFunSection = S:CreateSection("Random Stuff:")
+local M = Window:CreateTab("Misc", nil) 
+local MiscSection = M:CreateSection("Misc:")
+Rayfield:Notify({
+
+   Title = "Executed Succesfully",
+   Content = "Have Fun ;D",
+   Duration = 2.5,
+   Image = 109557676541299,
+})
+
+--[Home]
+H:CreateToggle({
+   Name = "Anti Mods&Devs",
+   CurrentValue = false,
+   Flag = "ToggleAntiModsDevs",
+   Callback = function(Enabled)
+      local Players = game:GetService("Players")
+      local specificUsers = {"leosteelo1", "Fixy_7676", "ahhdo", "Googly_Google3", "3dCarrot", "overgroundfrom1848", "Phxntomation", "Ashbashthesmash", "MicroscopicMay", "v6FiRE" ,"iStratix", "Dued1"} 
+      local connection
+
+      local function checkForSpecificUsers(player)
+         for _, username in ipairs(specificUsers) do
+            if player.Name == username then
+                game:Shutdown()
+            end
+         end
+      end
+
+      if Enabled then
+         -- Check for players already in the game
+         for _, player in ipairs(Players:GetPlayers()) do
+            checkForSpecificUsers(player)
+         end
+
+         -- Monitor new players joining
+         connection = Players.PlayerAdded:Connect(function(player)
+            checkForSpecificUsers(player)
+         end)
+      else
+         -- Disconnect the connection if it exists
+         if connection then
+            connection:Disconnect()
+            connection = nil
+         end
+      end
+   end,
+})
+
+H:CreateToggle({
+   Name = "UnAnchor Trees",
+   CurrentValue = false,
+   Flag = "Toggle3",
+   Callback = function(Enabled)
+      getgenv().nhekee = Enabled
+
+      -- Ensure only one thread is created for the tree uprooting logic
+      if not getgenv().treeUprootThread then
+         getgenv().treeUprootThread = coroutine.create(function()
+            while true do
+               wait(0.50)
+               if getgenv().nhekee then
+                  pcall(function()
+                     local treesFolder = workspace:FindFirstChild("Trees")
+                     local uprootRemote = workspace:FindFirstChild("Main") and workspace.Main:FindFirstChild("UprootTree")
+                     if treesFolder and uprootRemote then
+                        for _, descendant in pairs(treesFolder:GetDescendants()) do
+                           if descendant.Name == "Tree" or descendant.Name == "DeadTree" then
+                              uprootRemote:FireServer(descendant)
+                           end
+                        end
+                     end
+                  end)
+               end
+            end
+         end)
+         coroutine.resume(getgenv().treeUprootThread)
+      end
+
+      if Enabled then
+         print("Auto Uproot Trees enabled!")
+      else
+         print("Auto Uproot Trees disabled!")
+      end
+   end,
+})
+
+H:CreateToggle({
+   Name = "UnAnchor Mailboxes (Fixing Soon)",
+   CurrentValue = false,
+   Flag = "Toggle4",
+   Callback = function(Enabled)
+      getgenv().hekee = Enabled
+
+      -- Start/stop the mailbox knocking loop based on toggle state
+      if Enabled then
+         if not getgenv().knockMailboxesLoopRunning then
+            getgenv().knockMailboxesLoopRunning = true
+            getgenv().knockMailboxesThread = coroutine.create(function()
+               while getgenv().hekee do
+                  pcall(function()
+                     for _, descendant in pairs(game.Workspace.Houses:GetDescendants()) do
+                        if descendant.Name == "Mailbox" and descendant.Parent:IsA("Model") then
+                           local args = {[1] = descendant.Parent}
+                           workspace.Main.KnockMailbox:FireServer(unpack(args))
+                        end
+                     end
+                  end)
+                  wait(1)
+               end
+               getgenv().knockMailboxesLoopRunning = false
+            end)
+            coroutine.resume(getgenv().knockMailboxesThread)
+         end
+         print("Auto Knock Mailboxes enabled!")
+      else
+         getgenv().hekee = false
+         print("Auto Knock Mailboxes disabled!")
+      end
+   end,
+})
+
+H:CreateButton({
+    Name = "Bring Trees And Mailboxes",
+    Callback = function()
+        if getgenv().nhekee or getgenv().hekee then
+            local bodyPositions = {}
+            local movedParts = {}
+            local player = game.Players.LocalPlayer
+            local character = player.Character
+            local head = character and character:FindFirstChild("Head")
+            if not head then
+                warn("Player head not found!")
+                return
+            end
+            for _, obj in pairs(workspace:GetDescendants()) do
+                if (obj:IsA("BasePart") or obj:IsA("UnionOperation")) and not obj.Anchored and not obj:IsDescendantOf(character) then
+                    local ignoreNames = {
+                        ["Torso"] = true, ["Head"] = true, ["Right Arm"] = true, ["Left Arm"] = true,
+                        ["Right Leg"] = true, ["Left Leg"] = true, ["HumanoidRootPart"] = true
+                    }
+                    if not ignoreNames[obj.Name] then
+                        -- Remove existing movers
+                        for _, child in pairs(obj:GetChildren()) do
+                            if child:IsA("BodyPosition") or child:IsA("BodyGyro") then
+                                child:Destroy()
+                            end
+                        end
+                        -- Add BodyPosition to move part
+                        local bp = Instance.new("BodyPosition")
+                        bp.Parent = obj
+                        bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                        table.insert(bodyPositions, bp)
+                        if not table.find(movedParts, obj) then
+                            table.insert(movedParts, obj)
+                        end
+                    end
+                end
+            end
+            -- Move all found parts to player's head position
+            for _, bp in pairs(bodyPositions) do
+                bp.Position = head.Position
+            end
+            wait(1)
+            -- Clean up BodyMovers
+            for _, part in pairs(movedParts) do
+                for _, child in pairs(part:GetChildren()) do
+                    if child:IsA("BodyPosition") or child:IsA("BodyGyro") then
+                        child:Destroy()
+                    end
+                end
+            end
+        else
+            workspace.MessageService.Dialog.Dialog:Fire("Bring Script Warning", "Enable UnAnchor Trees and UnAnchor Mailboxes", "Ok", "No", true, true)
+        end
+    end,
+})
+
+H:CreateButton({
+   Name = "Fling Unanchored Models",
+   Callback = function()
+       local character = game.Players.LocalPlayer.Character
+   if not character then return end
+
+   local function flingPart(part)
+      for _, child in ipairs(part:GetChildren()) do
+         if child:IsA("BodyVelocity") or child:IsA("BodyAngularVelocity") then
+            child:Destroy()
+         end
+      end
+      local bv = Instance.new("BodyVelocity")
+      bv.Velocity = Vector3.new(math.random(-100,100), math.random(100,200), math.random(-100,100))
+      bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+      bv.P = 1e5
+      bv.Parent = part
+
+      local bav = Instance.new("BodyAngularVelocity")
+      bav.AngularVelocity = Vector3.new(math.random(-50,50), math.random(-50,50), math.random(-50,50))
+      bav.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
+      bav.P = 1e5
+      bav.Parent = part
+   end
+
+   for _, part in ipairs(workspace:GetDescendants()) do
+      if (part:IsA("BasePart") or part:IsA("UnionOperation")) and not part.Anchored and not part:IsDescendantOf(character) then
+         flingPart(part)
+      end
+   end
+ end,
+})
+
+H:CreateSection("Trolling")
+
+local BreakLeaderboardLoop = nil
+
+H:CreateToggle({
+   Name = "Break Leaderboard",
+   CurrentValue = false,
+   Flag = "ToggleBreakLeaderboard",
+   Callback = function(Enabled)
+      getgenv().nnnnnnnnnnnn = Enabled
+
+      if Enabled then
+         BreakLeaderboardLoop = task.spawn(function()
+            while getgenv().nnnnnnnnnnnn do
+               task.wait()
+               pcall(function()
+                  local channel = game:GetService("ReplicatedStorage"):WaitForChild("PlayerChannel")
+                  local jobs = {
+                     "Cashier", "Cook", "Delivery", "Supplier", "On Break",
+                     "Cashier", "Cook", "Delivery", "Supplier", "On Break",
+                     "Cook", "Delivery", "Cook", "Delivery",
+                     "Cashier", "Supplier", "On Break",
+                     "Cook", "Delivery", "Supplier", "On Break",
+                     "Cook", "Delivery"
+                  }
+
+                  for _, job in ipairs(jobs) do
+                     channel:FireServer("ChangeJob", job)
+                     task.wait(0.02)
+                  end
+               end)
+            end
+         end)
+      else
+         getgenv().nnnnnnnnnnnn = false
+         -- Der Loop wird automatisch beendet, da die While-Bedingung false wird.
+      end
+   end
+})
+
+H:CreateSection("Extra")
+
+-- Fullbright Toggle
+H:CreateToggle({
+   Name = "Fullbright",
+   CurrentValue = false,
+   Flag = "Toggle2",
+   Callback = function(Enabled)
+       local Lighting = game:GetService("Lighting")
+       if Enabled then
+           origsettings = {
+               abt = Lighting.Ambient,
+               oabt = Lighting.OutdoorAmbient,
+               brt = Lighting.Brightness,
+               time = Lighting.ClockTime,
+               fe = Lighting.FogEnd,
+               fs = Lighting.FogStart,
+               gs = Lighting.GlobalShadows
+           }
+           Lighting.Brightness = 2
+           Lighting.ClockTime = 14
+           Lighting.FogEnd = 100000
+           Lighting.GlobalShadows = false
+           Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+       else
+           Lighting.Ambient = origsettings.abt
+           Lighting.OutdoorAmbient = origsettings.oabt
+           Lighting.Brightness = origsettings.brt
+           Lighting.ClockTime = origsettings.time
+           Lighting.FogEnd = origsettings.fe
+           Lighting.FogStart = origsettings.fs
+           Lighting.GlobalShadows = origsettings.gs
+       end
+   end,
+})
+
+A:CreateButton({
+   Name = "Auofarm (Brand New)",
+   Callback = function()
+
+   end,
+})
+
+A:CreateParagraph({Title = "!Important!", Content = "Use Only 1 Job At Once To Avoid Ban."})
+
+A:CreateParagraph({Title = "Need To Fix:", Content = "Cook, Delivery Are Broken, Please Dont Use Them."})
+
+A:CreateSection("Like Leaderboard Farm:")
+
+A:CreateToggle({
+   Name = "Auto Invite (Need VIP)",
+   CurrentValue = false,
+   Flag = "ToggleAutoInvite",
+   Callback = function(Enabled)
+      while true do 
+local Players = game:GetService("Players")
+for i,v in Players:GetPlayers() do
+local args = {
+    "InvitePlayerToParty",
+    v
+}
+game:GetService("ReplicatedStorage"):WaitForChild("PlayerChannel"):FireServer(unpack(args))
+end
+wait(10)
+end
+   end,
+})
+
+A:CreateSection("Money Leaderboard Farm:")
+
+A:CreateDropdown({
+   Name = "Select Presents",
+   Options = {"None", "Gear Present", "Normal Present", "Movie Present"},
+   CurrentOption = "None",
+   Callback = function(option)
+      if option[1] == "None" then
+         getgenv().SelectedPresent = nil
+      else
+         getgenv().SelectedPresent = option[1]
+         Rayfield:Notify({
+            Title = "Present Selected",
+            Content = "Selected: " .. option[1],
+            Duration = 2,
+         })
+      end
+   end,
+})
+
+A:CreateToggle({
+   Name = "Open Present",
+   CurrentValue = false,
+   Flag = "ToggleLoopOpenPresent",
+   Callback = function(Enabled)
+      getgenv().LoopOpenPresentEnabled = Enabled
+      local remote = game:GetService("ReplicatedStorage"):WaitForChild("PlayerChannel")
+      local function openSelectedPresent()
+         local selected = getgenv().SelectedPresent
+         if not selected or selected == "None" then return end
+         for _, Vender in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if (selected == "Normal Present" and Vender.Name == "Normal")
+            or (selected == "Gear Present" and Vender.Name == "Gear")
+            or (selected == "Movie Present" and Vender.Name == "Movie") then
+               if Vender:FindFirstChild("PresentCamera") then
+                  Vender.PresentCamera.Disabled = true
+               end
+               local id = Vender:FindFirstChild("RewardAssetId") and Vender.RewardAssetId.Value
+               if id then
+                  game.Players.LocalPlayer.Character.Humanoid:EquipTool(Vender)
+                  remote:FireServer("PutUnwrappedItemInInventory", id)
+               end
+            end
+         end
+      end
+      if Enabled then
+         getgenv().LoopOpenPresentThread = coroutine.create(function()
+            while getgenv().LoopOpenPresentEnabled do
+               openSelectedPresent()
+               wait()
+            end
+         end)
+         coroutine.resume(getgenv().LoopOpenPresentThread)
+      else
+         getgenv().LoopOpenPresentEnabled = false
+      end
+   end,
+})
+
+A:CreateToggle({
+   Name = "Buy Present (Fix Soon)",
+   CurrentValue = false,
+   Flag = "ToggleLoopBuyPresents",
+   Callback = function(Enabled)
+      getgenv().BuyPresentRunning = Enabled
+
+      local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local dialogBox = player:WaitForChild("PlayerGui"):WaitForChild("GuiTop"):FindFirstChild("DialogBox")
+
+if dialogBox then
+    dialogBox:Destroy()
+end
+
+      local presentMap = {
+         ["Normal Present"] = "Normal",
+         ["Gear Present"] = "Gear",
+         ["Movie Present"] = "Movie"
+      }
+
+      if Enabled then
+         task.spawn(function()
+            while getgenv().BuyPresentRunning do
+               task.wait()
+               local presentName = getgenv().SelectedPresent
+               local presentTable = workspace:FindFirstChild("PresentTable")
+               if presentTable and presentName and presentName ~= "None" then
+                  local presents = presentTable:FindFirstChild("Presents")
+                  local presentType = nil
+                  if presents then
+                     if presentName == "Normal Present" then
+                        presentType = presents:FindFirstChild("Normal")
+                     elseif presentName == "Gear Present" then
+                        presentType = presents:FindFirstChild("Gear")
+                     elseif presentName == "Movie Present" then
+                        presentType = presents:FindFirstChild("Movie")
+                     end
+                  end
+                  if presentType and presentType:FindFirstChild("ClickDetector") and presentType.ClickDetector:FindFirstChild("Detector") then
+                     pcall(function()
+                        presentType.ClickDetector.Detector:FireServer()
+                     end)
+                  end
+               end
+
+               local selected = getgenv().SelectedPresent
+               local presentArg = presentMap[selected]
+               local buyFunc = workspace:FindFirstChild("Main")
+               if buyFunc and buyFunc:FindFirstChild("BuyPresentCoins") and presentArg ~= nil then
+                  pcall(function()
+                     buyFunc.BuyPresentCoins:InvokeServer(presentArg)
+                  end)
+               end
+            end
+         end)
+      else
+         getgenv().BuyPresentRunning = false
+      end
+   end,
+})
+
+   A:CreateButton({
+   Name = "Sell Iventory",
+   Callback = function()
+     loadstring(game:HttpGet("https://pastebin.com/raw/s6Kt7pit"))()
+   end,
+})
+
+A:CreateSection("Pet & Freeloading")
+
+A:CreateToggle({
+   Name = "Fast Pet XP",
+   CurrentValue = false,
+   Flag = "ToggleFastPetXP",
+   Callback = function(Enabled)
+     
+   end,
+})
+
+A:CreateToggle({
+   Name = "Freeload Public Servers",
+   CurrentValue = false,
+   Flag = "ToggleAutoStayAtJob",
+   Callback = function(Enabled)
+      getgenv().AutoStayAtJobEnabled = Enabled
+      local jobName = "Delivery" -- Change this to your desired job if needed
+
+      if Enabled then
+         if not getgenv().AutoStayAtJobThread then
+            getgenv().AutoStayAtJobThread = coroutine.create(function()
+               while getgenv().AutoStayAtJobEnabled do
+                  local args = {"ChangeJob", jobName}
+                  game:GetService("ReplicatedStorage"):WaitForChild("PlayerChannel"):FireServer(unpack(args))
+                  wait(2) -- Adjust interval as needed, 2 seconds is usually enough
+               end
+            end)
+            coroutine.resume(getgenv().AutoStayAtJobThread)
+         end
+      else
+         getgenv().AutoStayAtJobEnabled = false
+         getgenv().AutoStayAtJobThread = nil
+      end
+   end,
+})
+
+---[Teleports]
+T:CreateDropdown({
+   Name = "Tp To Jobs",
+   Options = {"None", "Cashier", "Cook", "PizzaBoxer", "Delivery", "Supplier", "Manager"},
+   CurrentOption = "None", -- Should be a string
+   MultipleOptions = false,
+   Flag = "Dropdown1",
+   Callback = function(Option)
+      local player = game.Players.LocalPlayer
+      if not player then return end  -- If `LocalPlayer` doesn't exist, exit
+
+      local character = player.Character or player.CharacterAdded:Wait()
+      local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+      if not humanoidRootPart then return end  -- If `HumanoidRootPart` is missing, exit
+      
+      if Option[1] == "None" then return end  -- If "None" is selected, do nothing
+
+      if Option[1] == "Cashier" then
+         humanoidRootPart.CFrame = CFrame.new(49, 4, 83)
+      elseif Option[1] == "Cook" then
+         humanoidRootPart.CFrame = CFrame.new(38, 4, 54)
+      elseif Option[1] == "PizzaBoxer" then
+         humanoidRootPart.CFrame = CFrame.new(60, 4, 13)
+      elseif Option[1] == "Delivery" then
+         humanoidRootPart.CFrame = CFrame.new(65, 4, -16)
+      elseif Option[1] == "Supplier" then
+         humanoidRootPart.CFrame = CFrame.new(7, 13, -1022)
+      elseif Option[1] == "Manager" then
+         humanoidRootPart.CFrame = CFrame.new(39, 4, 2)
+      end
+   end,
+})
+
+T:CreateDropdown({
+   Name = "Tp To Teleporters",
+   Options = {"None", "Party Island", "Krusty Crab"},
+   CurrentOption = "None", -- Should be a string
+   MultipleOptions = false,
+   Flag = "Dropdown2",
+   Callback = function(Option)
+      local player = game.Players.LocalPlayer
+      if not player then return end  -- If `LocalPlayer` doesn't exist, exit
+
+      local character = player.Character or player.CharacterAdded:Wait()
+      local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+      if not humanoidRootPart then return end  -- If `HumanoidRootPart` is missing, exit
+      
+      if Option[1] == "None" then return end  -- If "None" is selected, do nothing
+
+      if Option[1] == "Party Island" then
+         humanoidRootPart.CFrame = CFrame.new(87, 3, -316)
+      elseif Option[1] == "Krusty Crab" then
+         humanoidRootPart.CFrame = CFrame.new(-495, -26, -542)
+      end
+   end,
+})
+
+T:CreateDropdown({
+   Name = "Tp To Islands",
+   Options = {"None", "Desert Island", "Stone Island", "Pirate Island"},
+   CurrentOption = "None", -- Should be a string
+   MultipleOptions = false,
+   Flag = "Dropdown3", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Option)
+      local player = game.Players.LocalPlayer
+      if not player then return end -- Check if LocalPlayer exists
+
+      local character = player.Character or player.CharacterAdded:Wait()
+      if not character then return end
+
+      local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+      if not humanoidRootPart then return end
+
+      if Option[1] == "None" then return end -- If "None" is selected, do nothing
+
+      if Option[1] == "Desert Island" then
+         humanoidRootPart.CFrame = CFrame.new(1515, 0, 1373)
+      elseif Option[1] == "Stone Island" then
+         humanoidRootPart.CFrame = CFrame.new(-1763, 100, -1333)
+      elseif Option[1] == "Pirate Island" then
+         humanoidRootPart.CFrame = CFrame.new(-1040, 41, 702)
+      end
+   end,
+})
+
+T:CreateDropdown({
+   Name = "Tp To Houses",
+   Options = {"None","A1","A2","A3","B1","B2","B3","B4","B5","B6","C1","C2","C3"},
+   CurrentOption = {"None"},
+   MultipleOptions = false,
+   Flag = "Dropdown1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Option)
+      -- The function that takes place when the selected option is changed
+      -- The variable (Option) is a table of strings for the current selected options
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+      
+      if Option[1] == "A1" then
+         humanoidRootPart.CFrame = CFrame.new(190, 3, -474)
+      elseif Option[1] == "A2" then
+         humanoidRootPart.CFrame = CFrame.new(188, 3, -652)
+      elseif Option[1] == "A3" then
+         humanoidRootPart.CFrame = CFrame.new(187, 3, -823)
+      elseif Option[1] == "B1" then
+         humanoidRootPart.CFrame = CFrame.new(-21, 3, -432)
+      elseif Option[1] == "B2" then
+         humanoidRootPart.CFrame = CFrame.new(24, 3, -481)
+      elseif Option[1] == "B3" then
+         humanoidRootPart.CFrame = CFrame.new(-20, 3, -612)
+      elseif Option[1] == "B4" then
+         humanoidRootPart.CFrame = CFrame.new(24, 3, -663)
+      elseif Option[1] == "B5" then
+         humanoidRootPart.CFrame = CFrame.new(-20, 3, -800)
+      elseif Option[1] == "B6" then
+         humanoidRootPart.CFrame = CFrame.new(23, 3, -836)
+      elseif Option[1] == "C1" then
+         humanoidRootPart.CFrame = CFrame.new(-184, 3, -444)
+      elseif Option[1] == "C2" then
+         humanoidRootPart.CFrame = CFrame.new(-186, 3, -612)
+      elseif Option[1] == "C3" then
+         humanoidRootPart.CFrame = CFrame.new(-185, 3, -792)
+      end
+   end,
+})
+
+T:CreateDropdown({
+   Name = "Tp To Misc",
+   Options = {"None", "The Dump", "Pet Shop", "The Restaurant Secret", "The Dead Secret", "Leaderboards", "Rat Hideout", "Rat Parkour"},
+   CurrentOption = "None", -- Should be a string
+   MultipleOptions = false,
+   Flag = "Dropdown3", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Option)
+      local player = game.Players.LocalPlayer
+      if not player then return end -- Check if LocalPlayer exists
+
+      local character = player.Character or player.CharacterAdded:Wait()
+      if not character then return end
+
+      local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+      if not humanoidRootPart then return end
+
+      -- If "None" is selected, do nothing
+      if Option[1] == "None" then return end
+
+      -- Teleport the player based on the selection
+      if Option[1] == "The Dump" then
+         humanoidRootPart.CFrame = CFrame.new(28, 4, -182)
+      elseif Option[1] == "Pet Shop" then
+         humanoidRootPart.CFrame = CFrame.new(31, 4, -242)
+      elseif Option[1] == "The Restaurant Secret" then
+         humanoidRootPart.CFrame = CFrame.new(76, 10, 66)
+      elseif Option[1] == "The Dead Secret" then
+         humanoidRootPart.CFrame = CFrame.new(-252, -23, -952)
+      elseif Option[1] == "Leaderboards" then
+         humanoidRootPart.CFrame = CFrame.new(66, 3, -135)
+      end
+   end,
+})
+
+T:CreateButton({
+    Name = " Tp Your House",
+    Callback = function()
+        game:GetService("ReplicatedStorage"):WaitForChild("PlayerChannel"):FireServer("TeleportHome")
+    end,
+ })
+
+--[Player Settings]
+
+P:CreateSlider({
+   Name = "WalkSpeed",
+   Range = {8, 100},
+   Increment = 2,
+   Suffix = "Speed",
+   CurrentValue = 16,
+   Flag = "Speed1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Value)
+   end,
+})
+
+P:CreateSlider({
+   Name = "JumpPower",
+   Range = {0, 500},
+   Increment = 5,
+   Suffix = "JumpPower",
+   CurrentValue = 50,
+   Flag = "Jump1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = (Value)
+   end,
+})
+
+P:CreateToggle({
+   Name = "Fly (Camera Direction)",
+   CurrentValue = false,
+   Flag = "ToggleFly",
+   Callback = function(Enabled)
+       local player = game:GetService("Players").LocalPlayer
+       local character = player.Character or player.CharacterAdded:Wait()
+       local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+
+       if not humanoidRootPart then
+           warn("HumanoidRootPart not found!")
+           return
+       end
+
+       local RunService = game:GetService("RunService")
+       local UserInputService = game:GetService("UserInputService")
+       local flySpeed = 50
+       local flyConnection
+
+       if Enabled then
+           local BodyGyro = Instance.new("BodyGyro")
+           BodyGyro.Parent = humanoidRootPart
+           BodyGyro.P = 9e4
+           BodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+           BodyGyro.CFrame = humanoidRootPart.CFrame
+
+           local BodyVelocity = Instance.new("BodyVelocity")
+           BodyVelocity.Parent = humanoidRootPart
+           BodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+           BodyVelocity.Velocity = Vector3.zero
+
+           flyConnection = RunService.Heartbeat:Connect(function()
+               local cameraCFrame = game.Workspace.CurrentCamera.CFrame
+               local moveDirection = Vector3.zero
+
+               -- PC Controls
+               if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                   moveDirection = moveDirection + cameraCFrame.LookVector
+               end
+               if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                   moveDirection = moveDirection - cameraCFrame.LookVector
+               end
+               if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                   moveDirection = moveDirection - cameraCFrame.RightVector
+               end
+               if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                   moveDirection = moveDirection + cameraCFrame.RightVector
+               end
+               if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                   moveDirection = moveDirection + Vector3.new(0, 1, 0)
+               end
+               if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                   moveDirection = moveDirection - Vector3.new(0, 1, 0)
+               end
+
+               -- Mobile and Emulator Controls
+               local touchGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChild("TouchGui")
+               if touchGui then
+                   local moveVector = touchGui.TouchControlFrame:FindFirstChild("MoveStick") and touchGui.TouchControlFrame.MoveStick.MoveVector or Vector3.zero
+                   moveDirection = moveDirection + Vector3.new(moveVector.X, 0, moveVector.Y)
+               else
+                   -- WASD fallback for emulators
+                   if UserInputService:IsKeyDown(Enum.KeyCode.Up) then
+                       moveDirection = moveDirection + cameraCFrame.LookVector
+                   end
+                   if UserInputService:IsKeyDown(Enum.KeyCode.Down) then
+                       moveDirection = moveDirection - cameraCFrame.LookVector
+                   end
+                   if UserInputService:IsKeyDown(Enum.KeyCode.Left) then
+                       moveDirection = moveDirection - cameraCFrame.RightVector
+                   end
+                   if UserInputService:IsKeyDown(Enum.KeyCode.Right) then
+                       moveDirection = moveDirection + cameraCFrame.RightVector
+                   end
+               end
+
+               if moveDirection.Magnitude > 0 then
+                   BodyVelocity.Velocity = moveDirection.Unit * flySpeed
+               else
+                   BodyVelocity.Velocity = Vector3.zero
+               end
+               BodyGyro.CFrame = CFrame.new(humanoidRootPart.Position, humanoidRootPart.Position + cameraCFrame.LookVector)
+           end)
+       else
+           if flyConnection then
+               flyConnection:Disconnect()
+               flyConnection = nil
+           end
+           local bodyGyro = humanoidRootPart:FindFirstChildOfClass("BodyGyro")
+           if bodyGyro then bodyGyro:Destroy() end
+           local bodyVelocity = humanoidRootPart:FindFirstChildOfClass("BodyVelocity")
+           if bodyVelocity then bodyVelocity:Destroy() end
+       end
+   end,
+})
+
+local Clip = true
+local Noclipping = nil
+
+P:CreateToggle({
+   Name = "Noclip",
+   CurrentValue = false,
+   Flag = "ToggleNoclip",
+   Callback = function(Enabled)
+       local Player = game:GetService("Players").LocalPlayer
+       local Character = Player.Character or Player.CharacterAdded:Wait()
+
+       local function NoclipLoop()
+           if not Clip and Character then
+               for _, child in pairs(Character:GetDescendants()) do
+                   if child:IsA("BasePart") and child.CanCollide == true then
+                       child.CanCollide = false
+                   end
+               end
+           end
+       end
+
+       if Enabled then
+           Clip = false
+           Noclipping = game:GetService("RunService").Stepped:Connect(NoclipLoop)
+       else
+           if Noclipping then
+               Noclipping:Disconnect()
+               Noclipping = nil
+           end
+           Clip = true
+           -- Ensure only body parts are set back to CanCollide = true
+           if Character then
+               local bodyParts = {"Head", "Torso", "UpperTorso", "LowerTorso", "LeftArm", "RightArm", "LeftLeg", "RightLeg"}
+               for _, partName in pairs(bodyParts) do
+                   local part = Character:FindFirstChild(partName)
+                   if part and part:IsA("BasePart") then
+                       part.CanCollide = true
+                   end
+               end
+           end
+       end
+   end,
+})
+
+P:CreateToggle({
+   Name = "Infinite Jump",
+    CurrentValue = false, -- Default to false
+    Flag = "Toggle5",
+    Callback = function(Enabled)
+        InfiniteJumpEnabled = Enabled -- Update the state
+        if InfiniteJumpEnabled then
+            if not InfiniteJumpConnection then -- Ensure only one connection is created
+                InfiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+                    local Character = game.Players.LocalPlayer.Character
+                    if Character and Character:FindFirstChildOfClass("Humanoid") then
+                        Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+                    end
+                end)
+            end
+        else
+            if InfiniteJumpConnection then
+                InfiniteJumpConnection:Disconnect() -- Disconnect the connection
+                InfiniteJumpConnection = nil -- Clear the connection variable
+            end
+        end
+    end,
+})
+
+P:CreateToggle({
+   Name = "Anti Sit",
+   CurrentValue = false,
+   Flag = "ToggleAntiSit",
+   Callback = function(Enabled)
+      local Players = game:GetService("Players")
+      local LocalPlayer = Players.LocalPlayer
+      local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+      local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+      local Seats = workspace:GetDescendants()
+
+      if not Humanoid then
+         warn("Humanoid not found!")
+         return
+      end
+
+      if Enabled then
+         -- Disable sitting by setting all seats' Disabled property to true
+         for _, seat in ipairs(Seats) do
+            if seat:IsA("Seat") or seat:IsA("VehicleSeat") then
+               seat.Disabled = true
+            end
+         end
+      else
+         -- Re-enable sitting by setting all seats' Disabled property to false
+         for _, seat in ipairs(Seats) do
+            if seat:IsA("Seat") or seat:IsA("VehicleSeat") then
+               seat.Disabled = false
+            end
+         end
+      end
+   end,
+})
+
+P:CreateToggle({
+   Name = "Anti Afk",
+   CurrentValue = false,
+   Flag = "ToggleAntiAfk",
+   Callback = function()
+      local Players = game:GetService("Players")
+      local VirtualUser = game:GetService("VirtualUser")
+
+      Players.LocalPlayer.Idled:Connect(function()
+         VirtualUser:CaptureController()
+         VirtualUser:ClickButton2(Vector2.new())
+      end)
+    end,
+})
+
+local antifling -- Declare antifling variable at a higher scope
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+P:CreateToggle({
+   Name = "Anti-Fling",
+   CurrentValue = false,
+   Flag = "ToggleAntiFling",
+   Callback = function(Enabled)
+      if antifling then
+         antifling:Disconnect()
+         antifling = nil
+      end
+      if Enabled then
+         antifling = RunService.Stepped:Connect(function()
+            for _, player in ipairs(Players:GetPlayers()) do
+               if player ~= Players.LocalPlayer and player.Character then
+                  for _, v in pairs(player.Character:GetDescendants()) do
+                     if v:IsA("BasePart") then
+                        v.CanCollide = false
+                     end
+                  end
+               end
+            end
+         end)
+      end
+   end,
+})
+
+-- Add a global variable for the toggle state
+getgenv().heee = false
+
+-- Function to handle the fire extinguishing logic
+local function extinguishFires()
+   while true do
+      wait(0.40)
+      if getgenv().heee then
+         pcall(function()
+            for _, player in pairs(game.Players:GetPlayers()) do
+               if player.Character and player.Character:FindFirstChild("UpperTorso") then
+                  local args = {[1] = player.Character.UpperTorso}
+                  workspace.GameService.ExtinguishFire:FireServer(unpack(args))
+               end
+            end
+            for _, dough in pairs(game.Workspace.AllDough:GetChildren()) do
+               local args = {[1] = dough}
+               workspace.GameService.ExtinguishFire:FireServer(unpack(args))
+            end
+         end)
+      end
+   end
+end
+
+-- Start the fire extinguishing logic in a separate thread
+spawn(extinguishFires)
+
+P:CreateToggle({
+   Name = "Anti Oven Fire",
+   CurrentValue = false,
+   Flag = "ToggleAntiOvenFire",
+   Callback = function(Enabled)
+      getgenv().heee = Enabled
+   end,
+})
+
+P:CreateSection("Extra")
+
+P:CreateButton({
+   Name = "Teleport Tool",
+   Callback = function()
+      local speaker = game.Players.LocalPlayer -- Define speaker as the local player
+      local TpTool = Instance.new("Tool")
+      TpTool.Name = "Teleport Tool"
+      TpTool.Activated:Connect(function()
+         local Char = speaker.Character or workspace:FindFirstChild(speaker.Name)
+         local HRP = Char and Char:FindFirstChild("HumanoidRootPart")
+         if not Char or not HRP then
+            return warn("Failed to find HumanoidRootPart")
+         end
+         local targetPosition = IYMouse.Hit.Position + Vector3.new(0, 3, 0) -- Adjust Y-axis to prevent glitches
+         HRP.CFrame = CFrame.new(targetPosition)
+      end)
+      TpTool.RequiresHandle = false
+      TpTool.Parent = speaker.Backpack
+      local IYMouse = game.Players.LocalPlayer:GetMouse() -- Define the player's mouse
+      TpTool.Activated:Connect(function()
+         local Char = speaker.Character or workspace:FindFirstChild(speaker.Name)
+         local HRP = Char and Char:FindFirstChild("HumanoidRootPart")
+         if not Char or not HRP then
+            return warn("Failed to find HumanoidRootPart")
+         end
+         HRP.CFrame = CFrame.new(IYMouse.Hit.Position + Vector3.new(0, 5, 0)) -- Adjust Y-axis to prevent glitches
+      end)
+   end,
+})
+
+-- ESP state and connections
+local EspEnabled = false
+local EspConnections = {}
+
+P:CreateToggle({
+   Name = "Esp",
+   CurrentValue = false,
+   Flag = "ToggleEsp",
+   Callback = function(Enabled)
+      EspEnabled = Enabled
+
+      -- Helper to add ESP to a player
+      local function addEspToPlayer(player)
+         if player == game.Players.LocalPlayer then return end
+         if not player.Character then return end
+         -- Prevent duplicates
+         if player.Character:FindFirstChild("EspUsername") or player.Character:FindFirstChild("EspHighlight") then return end
+
+         -- BillboardGui for username
+         local billboard = Instance.new("BillboardGui")
+         billboard.Name = "EspUsername"
+         billboard.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
+         billboard.Size = UDim2.new(0, 100, 0, 25)
+         billboard.StudsOffset = Vector3.new(0, 2, 0)
+         billboard.AlwaysOnTop = true
+
+         local textLabel = Instance.new("TextLabel")
+         textLabel.Size = UDim2.new(1, 0, 1, 0)
+         textLabel.BackgroundTransparency = 1
+         textLabel.Text = player.Name
+         textLabel.TextColor3 = Color3.new(1, 1, 1)
+         textLabel.TextScaled = true
+         textLabel.Font = Enum.Font.SourceSansBold
+         textLabel.Parent = billboard
+
+         billboard.Parent = player.Character
+
+         -- Highlight
+         local highlight = Instance.new("Highlight")
+         highlight.Name = "EspHighlight"
+         highlight.Adornee = player.Character
+         highlight.FillColor = Color3.new(1, 1, 1)
+         highlight.FillTransparency = 0.5
+         highlight.OutlineTransparency = 0
+         highlight.Parent = player.Character
+      end
+
+      -- Helper to remove ESP from a player
+      local function removeEspFromPlayer(player)
+         if player.Character then
+            local billboard = player.Character:FindFirstChild("EspUsername")
+            if billboard then billboard:Destroy() end
+            local highlight = player.Character:FindFirstChild("EspHighlight")
+            if highlight then highlight:Destroy() end
+         end
+      end
+
+      -- Disconnect all previous connections
+      for _, conn in ipairs(EspConnections) do
+         if conn and conn.Connected then
+            conn:Disconnect()
+         end
+      end
+      EspConnections = {}
+
+      if EspEnabled then
+         -- Add ESP to all current players
+         for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+            addEspToPlayer(player)
+            -- Listen for character respawn
+            table.insert(EspConnections, player.CharacterAdded:Connect(function()
+               if EspEnabled then
+                  addEspToPlayer(player)
+               end
+            end))
+         end
+         -- Listen for new players joining
+         table.insert(EspConnections, game:GetService("Players").PlayerAdded:Connect(function(player)
+            table.insert(EspConnections, player.CharacterAdded:Connect(function()
+               if EspEnabled then
+                  addEspToPlayer(player)
+               end
+            end))
+            if EspEnabled and player.Character then
+               addEspToPlayer(player)
+            end
+         end))
+      else
+         -- Remove ESP from all players
+         for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+            removeEspFromPlayer(player)
+         end
+      end
+   end,
+})
+
+P:CreateToggle({
+   Name = "Freeze",
+   CurrentValue = false,
+   Flag = "ToggleFreeze",
+   Callback = function(Enabled)
+      local player = game:GetService("Players").LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      for _, part in ipairs(character:GetDescendants()) do
+         if part:IsA("BasePart") then
+            part.Anchored = Enabled
+         end
+      end
+   end,
+})
+
+local originalProperties = {} -- Table to store original properties
+
+P:CreateToggle({
+   Name = "XRay",
+   CurrentValue = false,
+   Flag = "ToggleXRay",
+   Callback = function(Enabled)
+      if Enabled then
+         for _, object in ipairs(workspace:GetDescendants()) do
+            if object:IsA("BasePart") and not object:IsA("Terrain") then
+               -- Save original material and transparency if not already saved
+               if not originalProperties[object] then
+                  originalProperties[object] = {
+                     Material = object.Material,
+                     Transparency = object.Transparency
+                  }
+               end
+               object.Material = Enum.Material.ForceField
+               object.Transparency = 0.5
+            end
+         end
+         print("XRay enabled!")
+      else
+         for object, properties in pairs(originalProperties) do
+            if object and object:IsA("BasePart") then
+               -- Restore original material and transparency
+               object.Material = properties.Material
+               object.Transparency = properties.Transparency
+            end
+         end
+         originalProperties = {} -- Clear the table after restoring
+         print("XRay disabled!")
+      end
+   end,
+})
+
+H:CreateSection("Client Sided")
+
+P:CreateButton({
+   Name = "Headless Head",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      local head = character:FindFirstChild("Head")
+      if head then
+         -- Make the head invisible instead of destroying it to avoid character reset
+         head.Transparency = 1
+         head.CanCollide = false
+         for _, child in ipairs(head:GetChildren()) do
+            if child:IsA("Decal") then
+               child:Destroy() -- Remove face decal
+            end
+         end
+         print("Headless effect applied!")
+      else
+         warn("Head not found!")
+      end
+   end,
+})
+
+P:CreateButton({
+   Name = "Korblox Right Leg",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      local rightLeg = character:FindFirstChild("Right Leg") or character:FindFirstChild("RightLowerLeg")
+      local rightUpperLeg = character:FindFirstChild("RightUpperLeg")
+      local rightFoot = character:FindFirstChild("RightFoot")
+
+      -- Remove all parts of the right leg
+      if rightLeg then rightLeg:Destroy() end
+      if rightUpperLeg then rightUpperLeg:Destroy() end
+      if rightFoot then rightFoot:Destroy() end
+
+      -- Create and attach the Korblox Right Leg
+      local korbloxLeg = Instance.new("MeshPart")
+      korbloxLeg.Name = "Right Leg"
+      korbloxLeg.MeshId = "rbxassetid://902942093" -- Korblox Right Leg Mesh ID
+      korbloxLeg.TextureID = "rbxassetid://902843398" -- Korblox Right Leg Texture ID
+      korbloxLeg.Size = Vector3.new(1, 2, 1)
+      korbloxLeg.Parent = character
+
+      -- Attach the Korblox leg to the HumanoidRootPart
+      local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+      if humanoidRootPart then
+         korbloxLeg.CFrame = humanoidRootPart.CFrame * CFrame.new(0.5, -2, 0) -- Adjust position relative to the root part
+         local weld = Instance.new("WeldConstraint")
+         weld.Part0 = korbloxLeg
+         weld.Part1 = humanoidRootPart
+         weld.Parent = korbloxLeg
+         print("Korblox Right Leg effect applied!")
+      else
+         warn("HumanoidRootPart not found!")
+      end
+   end,
+})
+
+-- Create a reference to the input element so it can be set from the tool
+local playerInputElement
+
+playerInputElement = G:CreateInput({
+   Name = "Type Player Username",
+   PlaceholderText = "Enter Player Username",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(username)
+      -- Store the selected player globally for use in other scripts
+      getgenv().SelectedPlayer = username
+      Rayfield:Notify({
+         Title = "Player Selected",
+         Content = "You selected: " .. tostring(username),
+         Duration = 2,
+      })
+   end,
+   Set = function(value)
+      -- This function allows setting the input value programmatically
+      if playerInputElement and playerInputElement.Set then
+         playerInputElement.Set(playerInputElement, value)
+      end
+   end
+})
+
+G:CreateButton({
+   Name = "Mouse Button To Choose",
+   Callback = function()
+      local Players = game:GetService("Players")
+      local LocalPlayer = Players.LocalPlayer
+
+      -- Create the selection tool
+      local selectTool = Instance.new("Tool")
+      selectTool.Name = "Player Selector"
+      selectTool.RequiresHandle = false
+
+      -- Set the tool icon to a mouse clicker (Roblox mouse icon asset)
+      selectTool.TextureId = "rbxassetid://114058734028941" -- This is a mouse pointer icon
+
+      -- When the tool is activated, select the player under the mouse
+      selectTool.Activated:Connect(function()
+         local mouse = LocalPlayer:GetMouse()
+         local target = mouse.Target
+         if target then
+            local model = target:FindFirstAncestorOfClass("Model")
+            if model and Players:FindFirstChild(model.Name) then
+               -- Save the selected player's name in the input box
+               local selectedName = model.Name
+               -- Set the input box value using the reference
+               if playerInputElement and playerInputElement.Set then
+                  playerInputElement:Set(selectedName)
+               end
+               Rayfield:Notify({
+                  Title = "Player Selected",
+                  Content = "Selected: " .. selectedName,
+                  Duration = 2,
+               })
+            else
+               Rayfield:Notify({
+                  Title = "No Player Found",
+                  Content = "Please click on a player's character.",
+                  Duration = 2,
+               })
+            end
+         end
+      end)
+
+      -- Give the tool to the player
+      selectTool.Parent = LocalPlayer.Backpack
+   end,
+})
+
+G:CreateButton({
+   Name = "Tree Fling (Update Soon)",
+   Callback = function()
+       getgenv().nhekee = true
+
+       -- Auto-Uproot Trees
+       if not getgenv().treeUprootThread then
+           getgenv().treeUprootThread = coroutine.create(function()
+               while getgenv().nhekee do
+                   wait(0.5)
+                   pcall(function()
+                       for _, descendant in pairs(game.Workspace.Trees:GetDescendants()) do
+                           if descendant.Name == "Tree" or descendant.Name == "DeadTree" then
+                               workspace.Main.UprootTree:FireServer(descendant)
+                           end
+                       end
+                   end)
+               end
+           end)
+           coroutine.resume(getgenv().treeUprootThread)
+       end
+
+       wait(2) -- Give some time for uprooting
+
+       -- Bring Trees to Selected Player and Fling
+       local Players = game:GetService("Players")
+       local selectedName = getgenv().SelectedPlayer
+       if not selectedName or selectedName == "" then
+           warn("No player selected!")
+           return
+       end
+       local TargetPlayer = Players:FindFirstChild(selectedName)
+       if not TargetPlayer or not TargetPlayer.Character then
+           warn("Selected player not found or no character!")
+           return
+       end
+       local head = TargetPlayer.Character:FindFirstChild("Head")
+       if not head then
+           warn("Target player's head not found!")
+           return
+       end
+       local bodyPositions = {}
+       local movedParts = {}
+
+       local function isInAnyCharacter(part)
+           for _, p in ipairs(Players:GetPlayers()) do
+               if p.Character and part:IsDescendantOf(p.Character) then
+                   return true
+               end
+           end
+           return false
+       end
+
+       local function flingPart(part)
+           for _, child in ipairs(part:GetChildren()) do
+               if child:IsA("BodyVelocity") or child:IsA("BodyAngularVelocity") then
+                   child:Destroy()
+               end
+           end
+           local bv = Instance.new("BodyVelocity")
+           bv.Velocity = Vector3.new(math.random(-100,100), math.random(100,200), math.random(-100,100))
+           bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+           bv.P = 1e5
+           bv.Parent = part
+
+           local bav = Instance.new("BodyAngularVelocity")
+           bav.AngularVelocity = Vector3.new(math.random(-50,50), math.random(-50,50), math.random(-50,50))
+           bav.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
+           bav.P = 1e5
+           bav.Parent = part
+       end
+
+       for _, obj in pairs(workspace:GetDescendants()) do
+           if (obj:IsA("BasePart") or obj:IsA("UnionOperation")) and not obj.Anchored and not isInAnyCharacter(obj) then
+               local ignoreNames = {
+                   ["Torso"] = true, ["Head"] = true, ["Right Arm"] = true,
+                   ["Left Arm"] = true, ["Right Leg"] = true, ["Left Leg"] = true,
+                   ["HumanoidRootPart"] = true
+               }
+               if not ignoreNames[obj.Name] then
+                   for _, child in pairs(obj:GetChildren()) do
+                       if child:IsA("BodyPosition") or child:IsA("BodyGyro") then
+                           child:Destroy()
+                       end
+                   end
+                   local bp = Instance.new("BodyPosition")
+                   bp.Position = head.Position
+                   bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                   bp.P = 1e5
+                   bp.Parent = obj
+                   table.insert(bodyPositions, bp)
+                   table.insert(movedParts, obj)
+               end
+           end
+       end
+
+       wait(1) -- Short time to bring parts
+
+       for _, part in ipairs(movedParts) do
+           if not isInAnyCharacter(part) then
+               flingPart(part)
+           end
+       end
+
+       -- Clean up BodyMovers
+       wait(1)
+       for _, part in ipairs(movedParts) do
+           for _, child in ipairs(part:GetChildren()) do
+               if child:IsA("BodyPosition") or child:IsA("BodyGyro") then
+                   child:Destroy()
+               end
+           end
+       end
+   end,
+})
+
+G:CreateButton({
+   Name = "Goto Player",
+   Callback = function()
+      local Players = game:GetService("Players")
+      local LocalPlayer = Players.LocalPlayer
+      local selectedName = getgenv().SelectedPlayer -- Use the selected player from the input
+
+      if not selectedName or selectedName == "" then
+         warn("No player selected!")
+         return
+      end
+
+      local TargetPlayer = Players:FindFirstChild(selectedName)
+      if not TargetPlayer then
+         warn("Player not found!")
+         return
+      end
+
+      local TargetCharacter = TargetPlayer.Character
+      local LocalCharacter = LocalPlayer.Character
+
+      if TargetCharacter and LocalCharacter then
+         local TargetHumanoidRootPart = TargetCharacter:FindFirstChild("HumanoidRootPart")
+         local LocalHumanoidRootPart = LocalCharacter:FindFirstChild("HumanoidRootPart")
+
+         if TargetHumanoidRootPart and LocalHumanoidRootPart then
+            LocalHumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame
+            print("Teleported to player " .. selectedName .. "!")
+         else
+            warn("HumanoidRootPart not found for one of the characters!")
+         end
+      else
+         warn("Character not found for one of the players!")
+      end
+   end,
+})
+
+local viewPlayerEnabled = false
+local viewPlayerConnection = nil
+
+G:CreateToggle({
+   Name = "View Player",
+   CurrentValue = false,
+   Flag = "ToggleViewPlayer",
+   Callback = function(Enabled)
+      viewPlayerEnabled = Enabled
+      local Players = game:GetService("Players")
+      local LocalPlayer = Players.LocalPlayer
+      local selectedName = getgenv().SelectedPlayer
+      local camera = workspace.CurrentCamera
+
+      -- Cleanup previous connection if any
+      if viewPlayerConnection then
+         viewPlayerConnection:Disconnect()
+         viewPlayerConnection = nil
+      end
+
+      if Enabled then
+         if not selectedName or selectedName == "" then
+            warn("No player selected!")
+            return
+         end
+
+         local TargetPlayer = Players:FindFirstChild(selectedName)
+         if not TargetPlayer then
+            warn("Player not found!")
+            return
+         end
+
+         local function setCameraSubject()
+            if TargetPlayer.Character and TargetPlayer.Character:FindFirstChild("Humanoid") then
+               camera.CameraSubject = TargetPlayer.Character.Humanoid
+            else
+               warn("Target player's character or humanoid not found!")
+            end
+         end
+
+         setCameraSubject()
+         viewPlayerConnection = TargetPlayer.CharacterAdded:Connect(setCameraSubject)
+      else
+         -- Reset camera to local player
+         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            camera.CameraSubject = LocalPlayer.Character.Humanoid
+         end
+      end
+   end,
+})
+
+getgenv().LoopBringSupplyBoxesEnabled = false
+getgenv().LoopBringSupplyBoxesThread = nil
+getgenv().SelectedPlayer = nil
+
+-- Store original positions in a table outside the callback to persist state
+local originalPositions = {}
+
+S:CreateToggle({
+   Name = "Remove Job Buttons",
+   CurrentValue = false,
+   Flag = "ToggleRemoveJobButtons",
+   Callback = function(Enabled)
+      local jobButtonNames = {"Cashier", "Cook", "Delivery", "Pizza Boxer", "Supplier"}
+      local workspaceButtons = game.Workspace:FindFirstChild("JobButtons") -- Adjust this if buttons are in another folder
+
+      if not workspaceButtons then
+         warn("JobButtons folder not found!")
+         return
+      end
+
+      for _, buttonName in ipairs(jobButtonNames) do
+         local button = workspaceButtons:FindFirstChild(buttonName)
+         if button then
+            if Enabled then
+               if not originalPositions[button] then
+                  originalPositions[button] = button.CFrame -- Save the original position
+               end
+               button.CFrame = button.CFrame + Vector3.new(0, 1000, 0) -- Move the button far above
+            else
+               if originalPositions[button] then
+                  button.CFrame = originalPositions[button] -- Restore the original position
+                  originalPositions[button] = nil -- Clear the saved position after restoring
+               end
+            end
+         else
+            warn("Button " .. buttonName .. " not found!")
+         end
+      end
+   end,
+})
+
+S:CreateToggle({
+   Name = "Remove All Doors",
+   CurrentValue = false,
+   Flag = "ToggleRemoveAllDoors",
+   Callback = function(Enabled)
+      -- Handle PublicDoor and ManagerDoor
+      local doorsFolder = game.Workspace:FindFirstChild("PizzaPlaceDoors")
+      if doorsFolder then
+         for _, doorGroup in ipairs(doorsFolder:GetChildren()) do
+            if doorGroup:IsA("Model") and (doorGroup.Name == "PublicDoor" or doorGroup.Name == "ManagerDoor") then
+               for _, part in ipairs(doorGroup:GetDescendants()) do
+                  if part:IsA("BasePart") then
+                     if Enabled then
+                        part.CFrame = part.CFrame + Vector3.new(0, 1000, 0) -- Move the group far above
+                     else
+                        part.CFrame = part.CFrame - Vector3.new(0, 1000, 0) -- Restore the original position
+                     end
+                  end
+               end
+            end
+         end
+      else
+         warn("PizzaPlaceDoors folder not found!")
+      end
+
+      -- Handle House Doors
+      local housesFolder = game.Workspace:FindFirstChild("Houses")
+      if housesFolder then
+         for houseIndex = 1, 12 do -- Check every house from 1 to 12
+            local house = housesFolder:FindFirstChild("House" .. houseIndex)
+            if house and house:IsA("Model") then
+               for _, houseType in ipairs(house:GetChildren()) do
+                  if houseType:IsA("Model") then
+                     local doorsGroup = houseType:FindFirstChild("Doors")
+                     if doorsGroup and doorsGroup:IsA("Model") then
+                        for _, door in ipairs(doorsGroup:GetDescendants()) do
+                           if door:IsA("BasePart") then
+                              if Enabled then
+                                 door.CFrame = door.CFrame + Vector3.new(0, 1000, 0) -- Move the door far above
+                              else
+                                 door.CFrame = door.CFrame - Vector3.new(0, 1000, 0) -- Restore the original position
+                              end
+                           end
+                        end
+                     end
+                  end
+               end
+            end
+         end
+      else
+         warn("Houses folder not found!")
+      end
+   end,
+})
+
+S:CreateToggle({
+   Name = "Remove Party + Krabs Teleporter",
+   CurrentValue = false,
+   Flag = "ToggleRemovePartyAndKrabsTeleporter",
+   Callback = function(Enabled)
+      local partyIslandModel = game.Workspace:FindFirstChild("Teleport to Party Island") -- Adjust this to the actual location of the model
+      local krabsModel = game.Workspace:FindFirstChild("KrustyKrab") -- Adjust this to the actual location of the Krusty Krab model
+
+      if not partyIslandModel or not partyIslandModel:IsA("Model") then
+         warn("Teleport to Party Island model not found!")
+      else
+         for _, part in ipairs(partyIslandModel:GetDescendants()) do
+            if part:IsA("BasePart") then
+               if Enabled then
+                  if not originalPositions[part] then
+                     originalPositions[part] = part.CFrame -- Save the original position
+                  end
+                  part.CFrame = part.CFrame + Vector3.new(0, 1000, 0) -- Move the part far above
+               else
+                  if originalPositions[part] then
+                     part.CFrame = originalPositions[part] -- Restore the original position
+                     originalPositions[part] = nil -- Clear the saved position after restoring
+                  end
+               end
+            end
+         end
+      end
+
+      if not krabsModel or not krabsModel:IsA("Model") then
+         warn("Krusty Krab model not found!")
+      else
+         for _, part in ipairs(krabsModel:GetDescendants()) do
+            if part:IsA("BasePart") then
+               if Enabled then
+                  if not originalPositions[part] then
+                     originalPositions[part] = part.CFrame -- Save the original position
+                  end
+                  part.CFrame = part.CFrame + Vector3.new(0, 1000, 0) -- Move the part far above
+               else
+                  if originalPositions[part] then
+                     part.CFrame = originalPositions[part] -- Restore the original position
+                     originalPositions[part] = nil -- Clear the saved position after restoring
+                  end
+               end
+            end
+         end
+      end
+   end,
+})
+
+S:CreateToggle({
+   Name = "Anti-Kick, Kill, Bring",
+   CurrentValue = false,
+   Flag = "ToggleAntiKickKillVoid",
+   Callback = function(Enabled)
+   if Enabled then
+      -- Noclip all VehicleSeats in Workspace
+      for _, v in ipairs(workspace:GetDescendants()) do
+         if v:IsA("VehicleSeat") then
+            v.CanCollide = false
+            v.Disabled = true
+         end
+      end
+   else
+      -- Restore VehicleSeats
+      for _, v in ipairs(workspace:GetDescendants()) do
+         if v:IsA("VehicleSeat") then
+            v.CanCollide = true
+            v.Disabled = false
+         end
+      end
+   end
+   end,
+})
+
+S:CreateToggle({
+   Name = "Auto Kill Pet",
+   CurrentValue = false,
+   Flag = "ToggleAutoKillPet",
+   Callback = function(Enabled)
+      if Enabled then
+         getgenv().AutoKillPetLoop = true
+         spawn(function()
+            while getgenv().AutoKillPetLoop do
+               local args = {
+                  "Hold"
+               }
+               workspace:WaitForChild("PetService"):WaitForChild("Command"):InvokeServer(unpack(args))
+               workspace:WaitForChild("PetService"):WaitForChild("ThrowPet"):FireServer(ThrowPet)
+               wait(0.5)
+            end
+         end)
+      else
+         getgenv().AutoKillPetLoop = false
+      end
+   end,
+})
+
+S:CreateButton({
+   Name = "Revive Pet",
+   Callback = function()
+      local args = {
+	"ClickedBubble",
+	workspace:WaitForChild("MulberryHideout"):WaitForChild("Model"):WaitForChild("Mulberry"):WaitForChild("Head")
+}
+workspace:WaitForChild("Dialog"):FireServer(unpack(args))
+local args = {
+	"ClickedBubble",
+	true
+}
+workspace:WaitForChild("TutorialService"):WaitForChild("PlayerAction"):FireServer(unpack(args))
+local args = {
+	"ResponseSelected",
+	workspace:WaitForChild("MulberryHideout"):WaitForChild("Model"):WaitForChild("Mulberry"):WaitForChild("Head"):WaitForChild("Dialog"):WaitForChild("BringPetBack"),
+	workspace:WaitForChild("MulberryHideout"):WaitForChild("Model"):WaitForChild("Mulberry"):WaitForChild("Head")
+}
+workspace:WaitForChild("Dialog"):FireServer(unpack(args))
+local args = {
+	true
+}
+workspace:WaitForChild("MessageService"):WaitForChild("DialogButtonPressed"):FireServer(unpack(args))
+   end,
+})
+
+S:CreateButton({
+   Name = "Get Fire Extinguisher",
+   Callback = function()
+     workspace:WaitForChild("Extinguisher"):WaitForChild("Extinguisher"):WaitForChild("ClickDetector"):WaitForChild("Detector"):FireServer()
+local args = {
+	"ToolHold"
+}
+workspace:WaitForChild("Animation"):WaitForChild("AnimationStarted"):FireServer(unpack(args))
+
+   end,
+})
+
+--[Misc]
+M:CreateButton({
+   Name = "Infinite Yield",
+   Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+   end,
+})
+
+M:CreateButton({
+   Name = "Original Pizza Hub",
+   Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/dK0SQckm"))()
+   end,
+})
+
+M:CreateButton({
+   Name = "Pizza Hub from Hussien",
+   Callback = function()
+      loadstring(game:HttpGet(('https://raw.githubusercontent.com/Hm5011/hussain/refs/heads/main/Work%20at%20a%20pizza%20place'),true))()
+   end,
+})
+
+M:CreateButton({
+   Name = "Rejoin",
+   Callback = function()
+      local Players = game:GetService("Players")
+      local LocalPlayer = Players.LocalPlayer
+      if LocalPlayer then
+         LocalPlayer:Kick("Rejoining the game...")
+         wait(1) -- Wait a bit before rejoining
+         game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
+      else
+         warn("LocalPlayer not found!")
+      end
+   end,
+})
+
+M:CreateButton({
+   Name = "Discord Server Link",
+   Callback = function()
+   setclipboard("https://discord.com/invite/jNxsV5jB7F")
+   Rayfield:Notify({
+      Title = "Discord Link Copied!",
+      Content = "Paste in Your Browser To Join.",
+      Duration = 4,
+   })
+   end,
+})
+
+M:CreateParagraph({Title = "Versions", Content = "V 1.0.0"})
+
+M:CreateParagraph({Title = "Update Content", Content = "Released Script"})
